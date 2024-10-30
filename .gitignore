@@ -1,0 +1,7 @@
+# editor
+.idea
+
+# env
+.env
+.env.development
+.env.production
