@@ -3,8 +3,9 @@ package main
 import (
 	"context"
 	"flag"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	"github.com/trooffEE/sushi-clicker-backend/internal/handlers"
+	appHandlers "github.com/trooffEE/sushi-clicker-backend/internal/handlers"
 	"log"
 	"net/http"
 	"os"
@@ -14,20 +15,23 @@ import (
 
 func main() {
 	var wait time.Duration
-	flag.DurationVar(&wait, "graceful-timeout", time.Second*10, "the duration for which the server gracefully wait for existing connections to finish - e.g. 15s or 1m")
+	flag.DurationVar(&wait,
+		"graceful-timeout",
+		time.Second*10,
+		"the duration for which the server gracefully wait for existing connections to finish - e.g. 15s or 1m",
+	)
 	flag.Parse()
 
 	router := mux.NewRouter()
-	router.HandleFunc("/api/login", handlers.Login).Methods(http.MethodPost, http.MethodOptions)
-
-	// CORS middleware
-	router.Use(mux.CORSMethodMiddleware(router))
-
-	// TODO hide it, too much logic in one place
+	router.HandleFunc("/api/login", appHandlers.Login).Methods("POST")
 
 	srv := &http.Server{
-		Handler:      router,
-		Addr:         "127.0.0.1:3010",
+		Handler: handlers.CORS(
+			handlers.AllowedOrigins([]string{"http://localhost:5173"}),
+			handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
+			handlers.AllowedHeaders([]string{"Authorization", "Content-Type", "X-Requested-With"}),
+		)(router),
+		Addr:         ":3010",
 		WriteTimeout: 10 * time.Second,
 		ReadTimeout:  10 * time.Second,
 	}

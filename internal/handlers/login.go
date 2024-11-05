@@ -1,10 +1,10 @@
 package handlers
 
-import "net/http"
+import (
+	"net/http"
+)
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
-	w.Header().Set("Access-Control-Allow-Headers", "*")
-
+	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Login"))
 }
