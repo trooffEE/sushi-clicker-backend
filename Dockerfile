@@ -1,9 +1,9 @@
-FROM golang:1.22.2
+FROM golang:1.23.1
 
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
 
-RUN go build -o ./app # binary is so-called as app folder
-CMD ["/app"]
+RUN go build -o main ./cmd/app/main.go
+CMD ["./main"]

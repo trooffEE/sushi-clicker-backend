@@ -4,14 +4,15 @@ networks:
 
 services:
   backend:
-    container_name: backend-container
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3002:3002"
+      - "3010:3010"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+        restart: true
     networks:
       - server-network
     restart: always
@@ -19,11 +20,17 @@ services:
       - .env
 
   db:
-    container_name: db-container
+    container_name: database_container
     image: postgres:16.4
     restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}" ]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
     ports:
-      - "5432:5432"
+      - "5010:5432"
     volumes:
       - db:/var/lib/postgresql/data
     networks:

@@ -1,63 +1,60 @@
 package main
 
 import (
-	"context"
-	"flag"
+	_ "database/sql"
+	"fmt"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
+	"github.com/trooffEE/sushi-clicker-backend/internal/db"
 	appHandlers "github.com/trooffEE/sushi-clicker-backend/internal/handlers"
 	"log"
 	"net/http"
-	"os"
-	"os/signal"
 	"time"
 )
 
+type Server struct {
+	Router *mux.Router
+	DB     *sqlx.DB
+}
+
 func main() {
-	var wait time.Duration
-	flag.DurationVar(&wait,
-		"graceful-timeout",
-		time.Second*10,
-		"the duration for which the server gracefully wait for existing connections to finish - e.g. 15s or 1m",
-	)
-	flag.Parse()
+	database := db.NewDatabaseClient()
+	if database == nil {
+		fmt.Println("Database connection failed")
+		return
+	}
+	server := CreateServer(database)
+	server.MountHandlers()
+	server.Start()
+}
 
-	router := mux.NewRouter()
-	router.HandleFunc("/api/login", appHandlers.Login).Methods("POST")
+func CreateServer(db *sqlx.DB) *Server {
+	server := &Server{
+		Router: mux.NewRouter(),
+		DB:     db,
+	}
+	return server
+}
 
+func (s *Server) MountHandlers() {
+	s.Router.HandleFunc("/api/login", appHandlers.Login).Methods("POST")
+}
+
+func (s *Server) Start() {
 	srv := &http.Server{
 		Handler: handlers.CORS(
-			handlers.AllowedOrigins([]string{"http://localhost:5173"}),
+			handlers.AllowedOrigins([]string{"http://localhost:5173"}), // TODO local development
 			handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
 			handlers.AllowedHeaders([]string{"Authorization", "Content-Type", "X-Requested-With"}),
-		)(router),
+		)(s.Router),
 		Addr:         ":3010",
 		WriteTimeout: 10 * time.Second,
 		ReadTimeout:  10 * time.Second,
 	}
 
-	go func() {
-		if err := srv.ListenAndServe(); err != nil {
-			log.Println(err)
-		}
-	}()
-
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-
-	<-c
-
-	ctx, cancel := context.WithTimeout(context.Background(), wait)
-	defer cancel()
-
-	err := srv.Shutdown(ctx)
-	if err != nil {
+	if err := srv.ListenAndServe(); err != nil {
 		log.Println(err)
 	}
-
-	// Optionally, you could run srv.Shutdown in a goroutine and block on
-	// <-ctx.Done() if your application should wait for other services
-	// to finalize based on context cancellation.
-	log.Println("shutting down")
-	os.Exit(0)
 }
