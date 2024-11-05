@@ -2,7 +2,6 @@ package main
 
 import (
 	_ "database/sql"
-	"fmt"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
@@ -21,10 +20,6 @@ type Server struct {
 
 func main() {
 	database := db.NewDatabaseClient()
-	if database == nil {
-		fmt.Println("Database connection failed")
-		return
-	}
 	server := CreateServer(database)
 	server.MountHandlers()
 	server.Start()

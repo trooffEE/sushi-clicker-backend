@@ -20,7 +20,7 @@ services:
       - .env
 
   db:
-    container_name: database_container
+    container_name: sushi_db_container
     image: postgres:16.4
     restart: always
     healthcheck:
