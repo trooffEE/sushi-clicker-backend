@@ -40,7 +40,7 @@ func (s *Server) MountHandlers() {
 func (s *Server) Start() {
 	srv := &http.Server{
 		Handler: handlers.CORS(
-			handlers.AllowedOrigins([]string{"http://localhost:5173"}), // TODO local development
+			handlers.AllowedOrigins([]string{"http://localhost:5173"}), // TODO local development, later will add normal domain
 			handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
 			handlers.AllowedHeaders([]string{"Authorization", "Content-Type", "X-Requested-With"}),
 		)(s.Router),
