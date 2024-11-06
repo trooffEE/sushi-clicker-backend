@@ -35,6 +35,7 @@ func CreateServer(db *sqlx.DB) *Server {
 
 func (s *Server) MountHandlers() {
 	s.Router.HandleFunc("/api/login", appHandlers.Login).Methods("POST")
+	s.Router.HandleFunc("/api/register", appHandlers.Register).Methods("POST")
 }
 
 func (s *Server) Start() {

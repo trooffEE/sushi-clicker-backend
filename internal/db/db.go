@@ -23,9 +23,19 @@ type Config struct {
 }
 
 func NewDatabaseClient() *sqlx.DB {
-	err := godotenv.Load()
+
+	if os.Getenv("IN_CONTAINER") == "" {
+		if err := godotenv.Load(".env.local"); err != nil {
+			log.Fatal("Error loading .env file")
+		}
+	} else {
+		if err := godotenv.Load(); err != nil {
+			log.Fatal("Error loading .env file")
+		}
+	}
+
 	cfg := Config{
-		host:     "sushi_db_container",
+		host:     os.Getenv("DB_HOST"),
 		user:     os.Getenv("DB_USER"),
 		dbname:   os.Getenv("DB_NAME"),
 		password: os.Getenv("DB_PASSWORD"),

@@ -16,6 +16,8 @@ services:
     networks:
       - server-network
     restart: always
+    environment:
+      - IN_CONTAINER=true
     env_file:
       - .env
 
