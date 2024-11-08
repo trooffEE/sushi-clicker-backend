@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/jmoiron/sqlx"
-	"github.com/joho/godotenv"
 	"github.com/trooffEE/sushi-clicker-backend/internal/db/schema"
 	"log"
 	"os"
@@ -23,17 +22,6 @@ type Config struct {
 }
 
 func NewDatabaseClient() *sqlx.DB {
-
-	if os.Getenv("IN_CONTAINER") == "" {
-		if err := godotenv.Load(".env.local"); err != nil {
-			log.Fatal("Error loading .env file")
-		}
-	} else {
-		if err := godotenv.Load(); err != nil {
-			log.Fatal("Error loading .env file")
-		}
-	}
-
 	cfg := Config{
 		host:     os.Getenv("DB_HOST"),
 		user:     os.Getenv("DB_USER"),

@@ -3,17 +3,17 @@ package config
 import (
 	"github.com/joho/godotenv"
 	"log"
+	"os"
 )
 
-type Cfg struct{}
-
-func initConfig() *Cfg {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("[error] Error loading .env file")
+func init() {
+	if os.Getenv("IN_CONTAINER") == "" {
+		if err := godotenv.Load(".env.local"); err != nil {
+			log.Fatal("Error loading .env file")
+		}
+	} else {
+		if err := godotenv.Load(); err != nil {
+			log.Fatal("Error loading .env file")
+		}
 	}
-
-	return &Cfg{}
 }
-
-var Config = initConfig()

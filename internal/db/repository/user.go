@@ -1,13 +1,15 @@
 package repository
 
 import (
+	"database/sql"
 	"github.com/jmoiron/sqlx"
 	"github.com/trooffEE/sushi-clicker-backend/internal/db/model"
 	"log"
 )
 
 type UserRepositoryInterface interface {
-	Register(user model.User) error
+	FindUserByEmail(email string) (*model.User, error)
+	CreateUser(user *model.User) error
 }
 
 type UserRepository struct {
@@ -20,11 +22,21 @@ func NewUserRepository(db *sqlx.DB) *UserRepository {
 	}
 }
 
-func (r *UserRepository) Register(user model.User) error {
-	_, err := r.db.NamedExec(
-		`INSERT INTO users (email, hash) VALUES (:email, :hash)`,
-		user)
+func (r *UserRepository) FindUserByEmail(email string) (*model.User, error) {
+	var user model.User
+	err := r.db.Get(&user, "SELECT * from users WHERE email = ?", email)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
 
+	return &user, nil
+}
+
+func (r *UserRepository) CreateUser(user *model.User) error {
+	_, err := r.db.NamedExec("INSERT INTO users (email, hash) VALUES (:email, :hash)", user)
 	if err != nil {
 		log.Printf("%w\n", err)
 		return err
