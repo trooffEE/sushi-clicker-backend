@@ -7,5 +7,7 @@ type Handler struct {
 }
 
 func NewHandler(userService *user.Service) *Handler {
-	return &Handler{}
+	return &Handler{
+		UserService: userService,
+	}
 }

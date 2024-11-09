@@ -4,5 +4,5 @@ var Schema = `
 CREATE TABLE IF NOT EXISTS users (
     id serial primary key,
     email varchar(50),
-    hash varchar(30)
+    hash varchar(512)
 );`

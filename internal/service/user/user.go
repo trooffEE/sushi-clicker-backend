@@ -5,19 +5,18 @@ import (
 	"fmt"
 	"github.com/trooffEE/sushi-clicker-backend/internal/db/model"
 	"github.com/trooffEE/sushi-clicker-backend/internal/db/repository"
-	"github.com/trooffEE/sushi-clicker-backend/internal/lib"
 )
 
 var (
-	IsAlreadyRegistered = errors.New("user already registered")
+	IsAlreadyRegistered = errors.New("User is already registered")
 )
 
 type Service struct {
-	usrRepo repository.UserRepository
+	usrRepo *repository.UserRepository
 }
 
 func NewUserService(ur *repository.UserRepository) *Service {
-	return &Service{usrRepo: *ur}
+	return &Service{usrRepo: ur}
 }
 
 func (s *Service) Register(email, password string) error {
@@ -30,7 +29,7 @@ func (s *Service) Register(email, password string) error {
 	if user != nil {
 		return IsAlreadyRegistered
 	}
-	hash, err := lib.GenerateJWTToken(password)
+	hash, err := generatePasswordHash(password)
 	if err != nil {
 		fmt.Printf("Something went wrong on registration\n")
 		return err
@@ -43,6 +42,7 @@ func (s *Service) Register(email, password string) error {
 	err = s.usrRepo.CreateUser(&usr)
 	if err != nil {
 		fmt.Printf("Something went wrong on registration #%v \n", usr)
+		return err
 	}
 
 	return nil
