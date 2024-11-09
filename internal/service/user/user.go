@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"github.com/trooffEE/sushi-clicker-backend/internal/db/model"
 	"github.com/trooffEE/sushi-clicker-backend/internal/db/repository"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var (
-	IsAlreadyRegistered = errors.New("User is already registered")
+	IsAlreadyRegistered  = errors.New("User is already registered")
+	IncorrectCredentials = errors.New("Incorrect credentials")
 )
 
 type Service struct {
@@ -22,7 +24,6 @@ func NewUserService(ur *repository.UserRepository) *Service {
 func (s *Service) Register(email, password string) error {
 	user, err := s.usrRepo.FindUserByEmail(email)
 	if err != nil {
-		fmt.Printf("Something went wrong on registration user with email %s\n", email)
 		return err
 	}
 
@@ -41,8 +42,25 @@ func (s *Service) Register(email, password string) error {
 	}
 	err = s.usrRepo.CreateUser(&usr)
 	if err != nil {
-		fmt.Printf("Something went wrong on registration #%v \n", usr)
 		return err
+	}
+
+	return nil
+}
+
+func (s *Service) Login(email, password string) error {
+	user, err := s.usrRepo.FindUserByEmail(email)
+	if errors.Is(err, IncorrectCredentials) {
+		return IncorrectCredentials
+	}
+
+	if err != nil {
+		return err
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Hash), []byte(password))
+	if err != nil {
+		return IncorrectCredentials
 	}
 
 	return nil
