@@ -1,10 +1,10 @@
-package user
+package lib
 
 import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func generatePasswordHash(password string) (string, error) {
+func GeneratePasswordHash(password string) (string, error) {
 	bytePassword := []byte(password)
 	hash, err := bcrypt.GenerateFromPassword(bytePassword, bcrypt.DefaultCost)
 	if err != nil {

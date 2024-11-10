@@ -6,6 +6,7 @@ import (
 	"fmt"
 	httpServer "github.com/trooffEE/sushi-clicker-backend/internal/http"
 	"github.com/trooffEE/sushi-clicker-backend/internal/lib"
+	user2 "github.com/trooffEE/sushi-clicker-backend/internal/models/user"
 	"github.com/trooffEE/sushi-clicker-backend/internal/service/user"
 	"net/http"
 )
@@ -15,7 +16,7 @@ type Response struct {
 }
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
-	var rUser user.User
+	var rUser user2.User
 	err := json.NewDecoder(r.Body).Decode(&rUser)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
