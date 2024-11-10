@@ -10,6 +10,8 @@ import (
 	"github.com/trooffEE/sushi-clicker-backend/internal/db"
 	"github.com/trooffEE/sushi-clicker-backend/internal/db/repository"
 	"github.com/trooffEE/sushi-clicker-backend/internal/handlers/auth"
+	userHandler "github.com/trooffEE/sushi-clicker-backend/internal/handlers/user"
+	"github.com/trooffEE/sushi-clicker-backend/internal/middlewares"
 	"github.com/trooffEE/sushi-clicker-backend/internal/service/user"
 	"log"
 	"net/http"
@@ -24,6 +26,7 @@ type Server struct {
 func main() {
 	database := db.NewDatabaseClient()
 	server := CreateServer(database)
+	server.MountMiddlewares()
 	server.MountHandlers()
 	server.Start()
 }
@@ -36,14 +39,20 @@ func CreateServer(db *sqlx.DB) *Server {
 	return server
 }
 
+func (s *Server) MountMiddlewares() {
+	s.Router.Use(middlewares.AuthMiddleware)
+}
+
 func (s *Server) MountHandlers() {
 	usrRepo := repository.NewUserRepository(s.DB)
 	usrService := user.NewUserService(usrRepo)
 
-	hAuth := auth.NewHandler(usrService)
+	hAuth := authHandler.NewHandler(usrService)
+	hUser := userHandler.NewHandler(usrService)
 
 	s.Router.HandleFunc("/api/auth/login", hAuth.Login).Methods("POST")
 	s.Router.HandleFunc("/api/auth/register", hAuth.Register).Methods("POST")
+	s.Router.HandleFunc("/api/private/test", hUser.Test).Methods("GET")
 }
 
 func (s *Server) Start() {

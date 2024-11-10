@@ -6,8 +6,10 @@ import (
 	"os"
 )
 
+var IsDevelopment = os.Getenv("IN_CONTAINER") == ""
+
 func init() {
-	if os.Getenv("IN_CONTAINER") == "" {
+	if IsDevelopment {
 		if err := godotenv.Load(".env.local"); err != nil {
 			log.Fatal("Error loading .env file")
 		}

@@ -1,4 +1,4 @@
-package authHandler
+package userHandler
 
 import (
 	"github.com/trooffEE/sushi-clicker-backend/internal/service/user"

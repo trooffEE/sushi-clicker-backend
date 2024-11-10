@@ -37,7 +37,7 @@ func (r *UserRepository) FindUserByEmail(email string) (*model.User, error) {
 }
 
 func (r *UserRepository) CreateUser(user *model.User) error {
-	_, err := r.db.NamedExec("INSERT INTO users (email, hash) VALUES (:email, :hash)", user)
+	_, err := r.db.NamedExec("INSERT INTO users (email, hash, token_sugar) VALUES (:email, :hash, :token_sugar)", user)
 	if err != nil {
 		log.Printf("%w\n", err)
 		return err

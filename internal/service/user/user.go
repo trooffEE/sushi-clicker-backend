@@ -3,6 +3,7 @@ package user
 import (
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/trooffEE/sushi-clicker-backend/internal/db/model"
 	"github.com/trooffEE/sushi-clicker-backend/internal/db/repository"
 	"golang.org/x/crypto/bcrypt"
@@ -39,6 +40,7 @@ func (s *Service) Register(email, password string) error {
 	usr := model.User{
 		Email: email,
 		Hash:  hash,
+		Sugar: uuid.NewString(),
 	}
 	err = s.usrRepo.CreateUser(&usr)
 	if err != nil {
@@ -48,20 +50,24 @@ func (s *Service) Register(email, password string) error {
 	return nil
 }
 
-func (s *Service) Login(email, password string) error {
+func (s *Service) Login(email, password string) (*model.User, error) {
 	user, err := s.usrRepo.FindUserByEmail(email)
-	if errors.Is(err, IncorrectCredentials) {
-		return IncorrectCredentials
-	}
-
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Hash), []byte(password))
 	if err != nil {
-		return IncorrectCredentials
+		return nil, IncorrectCredentials
 	}
 
-	return nil
+	return user, err
+}
+
+func (s *Service) Refresh(email string) (*model.User, error) {
+	user, err := s.usrRepo.FindUserByEmail(email)
+	if err != nil {
+		return nil, err
+	}
+	return user, err
 }
