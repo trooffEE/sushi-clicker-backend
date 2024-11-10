@@ -18,6 +18,7 @@ type Service struct {
 	usrRepo *repository.UserRepository
 }
 
+// TODO Refactor https://youtu.be/hDwqFRUuykQ?t=868
 func NewUserService(ur *repository.UserRepository) *Service {
 	return &Service{usrRepo: ur}
 }
