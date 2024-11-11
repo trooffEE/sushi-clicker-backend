@@ -7,14 +7,14 @@ import (
 
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		isUnprotectedRoute := lib.StringStartsWith(r.URL.Path, "/api/user")
+		isUnprotectedRoute := lib.StringStartsWith(r.URL.Path, "/api/auth")
 
 		if isUnprotectedRoute {
 			next.ServeHTTP(w, r)
 			return
 		}
 
-		token, err := r.Cookie("X-Authorization-Access-Token")
+		token, err := r.Cookie("X-Authorization-Access-Token") // frontend part
 		if err != nil {
 			//http.Redirect(w, r, "/", http.StatusSeeOther)
 			return

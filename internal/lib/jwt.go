@@ -14,10 +14,11 @@ var (
 var secretKey = []byte(os.Getenv("JWT_SECRET_KEY"))
 var secretKeyRefresh = []byte(os.Getenv("JWT_SECRET_KEY_REFRESH"))
 
-func GenerateJwtRefreshToken(email string) (string, time.Time, error) {
+func GenerateJwtRefreshToken(email, sugar string) (string, time.Time, error) {
 	exp := time.Now().Add(24 * time.Hour)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"email": email,
+		"sugar": sugar,
 		"exp":   exp.Unix(),
 		"iat":   time.Now().Unix(),
 	})

@@ -8,8 +8,8 @@ import (
 
 var RefreshTokenName = "X-Authorization-Refresh-Token"
 
-func CookieInjectRefreshToken(w http.ResponseWriter, email string) {
-	token, exp, err := lib.GenerateJwtRefreshToken(email)
+func CookieInjectRefreshToken(w http.ResponseWriter, email, sugar string) {
+	token, exp, err := lib.GenerateJwtRefreshToken(email, sugar)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
