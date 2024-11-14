@@ -18,6 +18,7 @@ func (h *Handler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 	tokenCookie, err := r.Cookie(httpServer.RefreshTokenName)
 	if err != nil {
 		http.Error(w, RefreshError.Error(), http.StatusUnauthorized)
+		return
 	}
 
 	refreshToken, err := lib.ValidateJwtRefreshToken(tokenCookie.Value)

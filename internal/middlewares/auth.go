@@ -1,8 +1,10 @@
 package middlewares
 
 import (
+	"errors"
 	"github.com/trooffEE/sushi-clicker-backend/internal/lib"
 	"net/http"
+	"strings"
 )
 
 func AuthMiddleware(next http.Handler) http.Handler {
@@ -14,19 +16,19 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		token, err := r.Cookie("X-Authorization-Access-Token") // frontend part
-		if err != nil {
-			//http.Redirect(w, r, "/", http.StatusSeeOther)
+		reqToken := strings.Split(r.Header.Get("Authorization"), "Bearer ")
+		token := reqToken[1] // Removed bearer part
+		if token == "" {
+			http.Error(w, errors.New("invalid access token").Error(), http.StatusInternalServerError)
 			return
 		}
 
-		_, err = lib.ValidateJwtAccessToken(token.Value)
+		_, err := lib.ValidateJwtAccessToken(token)
 		if err != nil {
-			http.Redirect(w, r, "/", http.StatusUnauthorized)
+			http.Error(w, "Invalid access token", http.StatusUnauthorized)
 			return
 		}
 
-		// Check protection
 		next.ServeHTTP(w, r)
 	})
 }

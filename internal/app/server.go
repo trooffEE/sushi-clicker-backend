@@ -44,12 +44,14 @@ func (s *Server) MountHandlers() {
 
 	s.Router.HandleFunc("/api/auth/login", hAuth.Login).Methods("POST")
 	s.Router.HandleFunc("/api/auth/register", hAuth.Register).Methods("POST")
+	s.Router.HandleFunc("/api/auth/refresh-token", hAuth.RefreshToken).Methods("GET")
 	s.Router.HandleFunc("/api/private/test", hUser.Test).Methods("GET")
 }
 
 func (s *Server) Start() {
 	srv := &http.Server{
 		Handler: handlers.CORS(
+			handlers.AllowCredentials(),
 			handlers.AllowedOrigins([]string{"http://localhost:5173"}), // TODO local development, later will add normal domain
 			handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
 			handlers.AllowedHeaders([]string{"Authorization", "Content-Type", "X-Requested-With"}),

@@ -29,12 +29,12 @@ func GenerateJwtRefreshToken(email, sugar string) (string, time.Time, error) {
 }
 
 func GenerateJwtAccessToken(email, sugar string) (string, error) {
-	exp := time.Now().Add(time.Minute * 1) // TODO replace 1 with 15 or something
+	iat := time.Now()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"email": email,
 		"sugar": sugar,
-		"exp":   exp,
-		"iat":   time.Now().Unix(),
+		"exp":   iat.Add(time.Second * 1).Unix(), // TODO replace this small exp time
+		"iat":   iat.Unix(),
 	})
 
 	tokenSigned, err := token.SignedString(secretKey)

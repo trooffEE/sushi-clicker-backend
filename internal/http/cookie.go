@@ -25,6 +25,8 @@ func CookieInjectRefreshToken(w http.ResponseWriter, email, sugar string) {
 
 	if !config.IsDevelopment {
 		cookie.Secure = true
+	} else {
+		cookie.Secure = false
 	}
 
 	http.SetCookie(w, &cookie)
