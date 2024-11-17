@@ -32,6 +32,7 @@ func InitServer(db *sqlx.DB) {
 }
 
 func (s *Server) MountMiddlewares() {
+	s.Router.Use(middlewares.HTTPHeadersMiddleware)
 	s.Router.Use(middlewares.AuthMiddleware)
 }
 

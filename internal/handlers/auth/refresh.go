@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/trooffEE/sushi-clicker-backend/internal/http"
+	httpServer "github.com/trooffEE/sushi-clicker-backend/internal/http"
 	"github.com/trooffEE/sushi-clicker-backend/internal/lib"
 	"net/http"
 )

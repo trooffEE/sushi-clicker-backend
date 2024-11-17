@@ -33,7 +33,7 @@ func GenerateJwtAccessToken(email, sugar string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"email": email,
 		"sugar": sugar,
-		"exp":   iat.Add(time.Second * 1).Unix(), // TODO replace this small exp time
+		"exp":   iat.Add(time.Minute * 10).Unix(), // TODO replace this small exp time
 		"iat":   iat.Unix(),
 	})
 
