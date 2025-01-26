@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -13,6 +14,7 @@ import (
 	"github.com/trooffEE/sushi-clicker-backend/internal/service/user"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 )
 
@@ -22,7 +24,8 @@ type Server struct {
 	server *http.Server
 }
 
-func InitServer(ctx context.Context, db *sqlx.DB) {
+// Returns shutdowner
+func InitServer(db *sqlx.DB) func() {
 	server := &Server{
 		Router: mux.NewRouter(),
 		DB:     db,
@@ -30,12 +33,8 @@ func InitServer(ctx context.Context, db *sqlx.DB) {
 
 	server.MountMiddlewares()
 	server.MountHandlers()
-	go server.Start(ctx)
 
-	select {
-	case <-ctx.Done():
-		server.ShutdownHTTPServer()
-	}
+	return server.Start()
 }
 
 func (s *Server) ShutdownHTTPServer() {
@@ -70,7 +69,7 @@ func (s *Server) MountHandlers() {
 	s.Router.HandleFunc("/api/private/test", hUser.Test).Methods("GET")
 }
 
-func (s *Server) Start(ctx context.Context) {
+func (s *Server) Start() func() {
 	srv := &http.Server{
 		Handler: handlers.CORS(
 			handlers.AllowCredentials(),
@@ -78,14 +77,28 @@ func (s *Server) Start(ctx context.Context) {
 			handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
 			handlers.AllowedHeaders([]string{"Authorization", "Content-Type", "X-Requested-With"}),
 		)(s.Router),
-		Addr:         ":3010",
+		Addr:         ":3010", // TODO env
 		WriteTimeout: 10 * time.Second,
 		ReadTimeout:  10 * time.Second,
 	}
 
 	s.server = srv
 
-	if err := srv.ListenAndServe(); err != nil {
-		log.Println(err)
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if err := s.server.ListenAndServe(); err != nil && !errors.Is(http.ErrServerClosed, err) {
+			log.Fatalf("http server failed to start %v\n", err)
+		}
+	}()
+
+	return func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := s.server.Shutdown(ctx); err != nil {
+			log.Fatalf("http server shutdown failed: %v", err)
+		}
+		wg.Wait()
 	}
 }

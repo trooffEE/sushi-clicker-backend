@@ -4,35 +4,19 @@ import (
 	"errors"
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	"github.com/trooffEE/sushi-clicker-backend/internal/config"
 	"github.com/trooffEE/sushi-clicker-backend/internal/db/schema"
 	"log"
-	"os"
 )
 
 var (
 	ErrConnectionFailed = errors.New("connection failed")
 )
 
-type Config struct {
-	host     string
-	user     string
-	dbname   string
-	password string
-	port     string
-}
-
-func NewDatabaseClient() *sqlx.DB {
-	cfg := Config{
-		host:     os.Getenv("DB_HOST"),
-		user:     os.Getenv("DB_USER"),
-		dbname:   os.Getenv("DB_NAME"),
-		password: os.Getenv("DB_PASSWORD"),
-		port:     os.Getenv("DB_PORT"),
-	}
-
+func NewDatabaseClient(cfg config.DbConfig) *sqlx.DB {
 	connString := fmt.Sprintf(
 		"host=%s user=%s dbname=%s password=%s port=%s sslmode=disable",
-		cfg.host, cfg.user, cfg.dbname, cfg.password, cfg.port,
+		cfg.Host, cfg.User, cfg.Name, cfg.Password, cfg.Port,
 	)
 	db, err := sqlx.Connect("postgres", connString)
 	if err != nil {
