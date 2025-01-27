@@ -1,17 +1,12 @@
 package authHandler
 
 import (
-	"encoding/json"
 	"errors"
 	"github.com/golang-jwt/jwt/v5"
 	httpServer "github.com/trooffEE/sushi-clicker-backend/internal/http"
 	"github.com/trooffEE/sushi-clicker-backend/internal/lib"
 	"github.com/trooffEE/sushi-clicker-backend/internal/response"
 	"net/http"
-)
-
-var (
-	RefreshError = errors.New("Refresh Error")
 )
 
 func (h *Handler) RefreshToken(w http.ResponseWriter, r *http.Request) {
@@ -43,11 +38,5 @@ func (h *Handler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := json.Marshal(ResponseAccessToken{AccessToken: accessToken})
-	if err != nil {
-		response.NewErrorResponse(w, http.StatusInternalServerError, err)
-		return
-	}
-
-	response.NewOkResponse(w, http.StatusOK, res)
+	response.NewOkResponse(w, http.StatusOK, ResponseAccessToken{AccessToken: accessToken})
 }

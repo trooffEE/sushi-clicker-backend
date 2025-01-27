@@ -20,7 +20,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		reqToken := strings.Split(r.Header.Get("Authorization"), "Bearer ")
 		token := reqToken[1] // Removed bearer part
 		if token == "" {
-			response.NewErrorResponse(w, http.StatusBadRequest, errors.New("invalid access token"))
+			response.NewErrorResponse(w, http.StatusBadRequest, errors.New("no access token"))
 			return
 		}
 

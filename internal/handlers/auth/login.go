@@ -37,11 +37,6 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		response.NewErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
-	res, err := json.Marshal(ResponseAccessToken{AccessToken: accessToken})
-	if err != nil {
-		response.NewErrorResponse(w, http.StatusInternalServerError, err)
-		return
-	}
 
-	response.NewOkResponse(w, http.StatusOK, res)
+	response.NewOkResponse(w, http.StatusOK, ResponseAccessToken{AccessToken: accessToken})
 }

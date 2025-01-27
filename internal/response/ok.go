@@ -6,7 +6,7 @@ import (
 
 type OkResponse struct {
 	Success bool        "json:success"
-	Payload interface{} "json:reason"
+	Payload interface{} "json:payload"
 	Code    int64       "json:reason"
 }
 
