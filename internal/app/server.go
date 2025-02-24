@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
@@ -12,7 +11,7 @@ import (
 	userHandler "github.com/trooffEE/sushi-clicker-backend/internal/handlers/user"
 	"github.com/trooffEE/sushi-clicker-backend/internal/middlewares"
 	"github.com/trooffEE/sushi-clicker-backend/internal/service/user"
-	"log"
+	"go.uber.org/zap"
 	"net/http"
 	"sync"
 	"time"
@@ -37,18 +36,18 @@ func InitServer(db *sqlx.DB) func() {
 	return server.Start()
 }
 
-func (s *Server) ShutdownHTTPServer() {
-	fmt.Println("Server shutting down... ⚒")
-	err := s.server.Shutdown(context.Background())
+func (s *Server) ShutdownHTTPServer(ctx context.Context) {
+	zap.L().Info("Shutting down HTTP server... ⚒")
+	err := s.server.Shutdown(ctx)
 	if err != nil {
-		log.Fatal(err)
+		zap.L().Fatal("Error shutting down HTTP server", zap.Error(err))
 	}
 
 	err = s.DB.Close()
 	if err != nil {
-		log.Fatal(err)
+		zap.L().Fatal("Error shutting down HTTP server", zap.Error(err))
 	}
-	fmt.Println("Server is down 🫂")
+	zap.L().Info("Server is down 🫂")
 }
 
 func (s *Server) MountMiddlewares() {
@@ -89,16 +88,13 @@ func (s *Server) Start() func() {
 	go func() {
 		defer wg.Done()
 		if err := s.server.ListenAndServe(); err != nil && !errors.Is(http.ErrServerClosed, err) {
-			log.Fatalf("http server failed to start %v\n", err)
+			zap.L().Fatal("http server failed to start", zap.Error(err))
 		}
 	}()
 
 	return func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		if err := s.server.Shutdown(ctx); err != nil {
-			log.Fatalf("http server shutdown failed: %v", err)
-		}
+		ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+		s.ShutdownHTTPServer(ctx)
 		wg.Wait()
 	}
 }

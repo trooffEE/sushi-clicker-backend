@@ -1,10 +1,10 @@
 package user
 
 import (
-	"fmt"
 	"github.com/google/uuid"
 	"github.com/trooffEE/sushi-clicker-backend/internal/db/model"
 	"github.com/trooffEE/sushi-clicker-backend/internal/lib"
+	"go.uber.org/zap"
 )
 
 func (s *Service) Register(email, password string) error {
@@ -18,7 +18,7 @@ func (s *Service) Register(email, password string) error {
 	}
 	hash, err := lib.GeneratePasswordHash(password)
 	if err != nil {
-		fmt.Printf("Something went wrong on registration\n")
+		zap.L().Error("Failed to generate password hash", zap.Error(err))
 		return err
 	}
 

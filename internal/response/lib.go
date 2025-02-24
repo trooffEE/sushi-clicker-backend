@@ -2,13 +2,13 @@ package response
 
 import (
 	"encoding/json"
-	"fmt"
+	"go.uber.org/zap"
 )
 
 func marshall(v interface{}) []byte {
 	val, err := json.Marshal(v)
 	if err != nil {
-		fmt.Println("error marshalling response")
+		zap.L().Error("Error marshalling response", zap.Error(err))
 		panic(err)
 	}
 	return val

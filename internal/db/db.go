@@ -1,16 +1,11 @@
 package db
 
 import (
-	"errors"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/trooffEE/sushi-clicker-backend/internal/config"
 	"github.com/trooffEE/sushi-clicker-backend/internal/db/schema"
-	"log"
-)
-
-var (
-	ErrConnectionFailed = errors.New("connection failed")
+	"go.uber.org/zap"
 )
 
 func NewDatabaseClient(cfg config.DbConfig) *sqlx.DB {
@@ -20,13 +15,13 @@ func NewDatabaseClient(cfg config.DbConfig) *sqlx.DB {
 	)
 	db, err := sqlx.Connect("postgres", connString)
 	if err != nil {
-		log.Panicf("Database failed to esablish connection: %w ", ErrConnectionFailed)
+		zap.L().Panic("Database failed to establish connection: ", zap.Error(err))
 	}
 	if err := db.Ping(); err != nil {
-		log.Panicf("Database failed to be pinged: %w ", ErrConnectionFailed)
+		zap.L().Panic("Database failed to be pinged: ", zap.Error(err))
 	}
 
-	fmt.Println("Database client established connection 🥂")
+	zap.L().Info("Database connection established 🥂")
 
 	db.MustExec(schema.Schema)
 

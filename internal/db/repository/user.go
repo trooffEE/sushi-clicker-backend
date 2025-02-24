@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"github.com/jmoiron/sqlx"
 	"github.com/trooffEE/sushi-clicker-backend/internal/db/model"
-	"log"
+	"go.uber.org/zap"
 )
 
 type UserRepositoryInterface interface {
@@ -39,7 +39,7 @@ func (r *UserRepository) FindUserByEmail(email string) (*model.User, error) {
 func (r *UserRepository) CreateUser(user *model.User) error {
 	_, err := r.db.NamedExec("INSERT INTO users (email, hash, token_sugar) VALUES (:email, :hash, :token_sugar)", user)
 	if err != nil {
-		log.Printf("%w\n", err)
+		zap.L().Error(err.Error(), zap.String("email", user.Email))
 		return err
 	}
 
