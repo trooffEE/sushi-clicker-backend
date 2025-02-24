@@ -32,7 +32,7 @@ services:
       start_period: 30s
       timeout: 10s
     ports:
-      - "5010:5432"
+      - "127.0.0.1:5010:5432"
     volumes:
       - db:/var/lib/postgresql/data
     networks:
