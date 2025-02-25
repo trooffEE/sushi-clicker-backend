@@ -7,19 +7,19 @@ import (
 	"go.uber.org/zap"
 )
 
-func (s *Service) Register(email, password string) error {
+func (s *Service) Register(email, password string) (*model.User, error) {
 	user, err := s.usrRepo.FindUserByEmail(email)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if user != nil {
-		return IsAlreadyRegistered
+		return nil, IsAlreadyRegistered
 	}
 	hash, err := lib.GeneratePasswordHash(password)
 	if err != nil {
 		zap.L().Error("Failed to generate password hash", zap.Error(err))
-		return err
+		return nil, err
 	}
 
 	usr := model.User{
@@ -29,8 +29,8 @@ func (s *Service) Register(email, password string) error {
 	}
 	err = s.usrRepo.CreateUser(&usr)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &usr, nil
 }
