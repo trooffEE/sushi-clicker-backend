@@ -26,7 +26,7 @@ func (r *UserRepository) FindUserByEmail(email string) (*model.User, error) {
 	var user model.User
 	err := r.db.Get(&user, "SELECT * from users WHERE email = $1", email)
 	if err == sql.ErrNoRows {
-		return nil, nil
+		return nil, err
 	}
 
 	if err != nil {

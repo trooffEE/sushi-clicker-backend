@@ -1,6 +1,8 @@
 package user
 
 import (
+	"database/sql"
+	"errors"
 	"github.com/google/uuid"
 	"github.com/trooffEE/sushi-clicker-backend/internal/db/model"
 	"github.com/trooffEE/sushi-clicker-backend/internal/lib"
@@ -9,7 +11,7 @@ import (
 
 func (s *Service) Register(email, password string) (*model.User, error) {
 	user, err := s.usrRepo.FindUserByEmail(email)
-	if err != nil {
+	if !errors.Is(sql.ErrNoRows, err) && err != nil {
 		return nil, err
 	}
 
