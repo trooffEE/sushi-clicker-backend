@@ -17,8 +17,13 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		reqToken := strings.Split(r.Header.Get("Authorization"), "Bearer ")
-		token := reqToken[1] // Removed bearer part
+		var token string
+		if r.URL.Path == "/ws" { // i really don't like it...
+			token = r.URL.Query().Get("token")
+		} else {
+			token = strings.Split(r.Header.Get("Authorization"), "Bearer ")[1]
+		}
+
 		if token == "" {
 			response.NewErrorResponse(w, http.StatusBadRequest, errors.New("no access token"))
 			return

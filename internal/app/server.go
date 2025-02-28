@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
@@ -11,6 +12,7 @@ import (
 	userHandler "github.com/trooffEE/sushi-clicker-backend/internal/handlers/user"
 	"github.com/trooffEE/sushi-clicker-backend/internal/middlewares"
 	"github.com/trooffEE/sushi-clicker-backend/internal/service/user"
+	"github.com/trooffEE/sushi-clicker-backend/internal/socket"
 	"go.uber.org/zap"
 	"net/http"
 	"sync"
@@ -62,6 +64,10 @@ func (s *Server) MountHandlers() {
 	hAuth := authHandler.NewHandler(usrService)
 	hUser := userHandler.NewHandler(usrService)
 
+	s.Router.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("test 2")
+		socket.ServeWs(w, r)
+	})
 	s.Router.HandleFunc("/api/auth/login", hAuth.Login).Methods("POST")
 	s.Router.HandleFunc("/api/auth/register", hAuth.Register).Methods("POST")
 	s.Router.HandleFunc("/api/auth/refresh-token", hAuth.RefreshToken).Methods("GET")

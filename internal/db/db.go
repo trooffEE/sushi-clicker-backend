@@ -17,11 +17,6 @@ func NewDatabaseClient(cfg config.DbConfig) *sqlx.DB {
 		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.Name,
 	)
-	fmt.Println(connString)
-	//connString := fmt.Sprintf(
-	//	"host=%s user=%s dbname=%s password=%s port=%s sslmode=disable",
-	//	cfg.Host, cfg.User, cfg.Name, cfg.Password, cfg.Port,
-	//)
 	db, err := sqlx.Connect("postgres", connString)
 	if err != nil {
 		zap.L().Panic("Database failed to establish connection: ", zap.Error(err))
