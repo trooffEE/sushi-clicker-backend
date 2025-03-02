@@ -1,7 +1,6 @@
 package socket
 
 import (
-	"fmt"
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
 	"net/http"
@@ -24,13 +23,12 @@ type client struct {
 
 const (
 	//writeWait      = 10 * time.Second
-	pongWait = 60 * time.Second
+	pongWait = 20 * time.Second
 	//pingPeriod     = (pongWait * 9) / 10
 	maxMessageSize = 512
 )
 
 func ServeWs(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("test")
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		zap.L().Error("failed to upgrade to websocket", zap.Error(err))
@@ -44,11 +42,23 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 
 func (c *client) readServe() {
 	c.conn.SetReadLimit(maxMessageSize)
-	c.conn.SetReadDeadline(time.Now().Add(pongWait))
+	err := c.conn.SetReadDeadline(time.Now().Add(pongWait))
+	if err != nil {
+		zap.L().Error("failed to set read deadline", zap.Error(err))
+	}
 	c.conn.SetPongHandler(func(string) error {
-		c.conn.SetReadDeadline(time.Now().Add(pongWait))
-		return nil
+		return c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	})
+
+	go func() {
+		for {
+			time.Sleep(5 * time.Second)
+			if err := c.conn.WriteMessage(websocket.PingMessage, []byte("ping")); err != nil {
+				zap.L().Error("failed to write ping", zap.Error(err))
+				return
+			}
+		}
+	}()
 
 	for {
 		_, message, err := c.conn.ReadMessage()
@@ -58,6 +68,6 @@ func (c *client) readServe() {
 			}
 			break
 		}
-		c.send <- message
+		zap.L().Info("Testing reading message from socket", zap.ByteString("message", message))
 	}
 }

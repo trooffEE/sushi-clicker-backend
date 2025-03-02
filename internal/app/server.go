@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
@@ -65,7 +64,6 @@ func (s *Server) MountHandlers() {
 	hUser := userHandler.NewHandler(usrService)
 
 	s.Router.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("test 2")
 		socket.ServeWs(w, r)
 	})
 	s.Router.HandleFunc("/api/auth/login", hAuth.Login).Methods("POST")
